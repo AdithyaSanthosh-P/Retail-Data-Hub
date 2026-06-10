@@ -1,0 +1,57 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environment Variables
+.env
+.env.local
+.env.*
+
+# Node
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Build Outputs
+dist/
+build/
+
+# React
+frontend/node_modules/
+frontend/build/
+
+# Database Dumps
+*.sql.gz
+*.dump
+
+# Generated Data (optional)
+# Uncomment if datasets become large
+# data_sources/*.csv
+# data_sources/*.json
+# data_sources/*.jsonl
+
+# Antigravity
+.antigravity/
+
+# Coverage
+coverage/
+
+# Temporary
+tmp/
+temp/
+
+# Temporary Docmuentation
+docs/
