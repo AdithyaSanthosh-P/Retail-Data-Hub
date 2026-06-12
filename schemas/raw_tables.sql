@@ -1,3 +1,5 @@
+-- Update handover for inventory and product stock status alter
+
 CREATE TABLE Customers (
     customer_id INT PRIMARY KEY,
     customer_name VARCHAR(255) NOT NULL,
@@ -19,8 +21,7 @@ CREATE TABLE Products (
     product_id INT PRIMARY KEY,
     product_name VARCHAR(255) NOT NULL,
     category VARCHAR(255),
-    price DECIMAL(10, 2),
-    stock_status VARCHAR(50)
+    price DECIMAL(10, 2)
 );
 
 CREATE TABLE Orders (
@@ -55,6 +56,7 @@ CREATE TABLE Inventory (
     quantity_on_hand INT NOT NULL,
     reorder_level INT NOT NULL,
     last_updated TIMESTAMP NOT NULL,
+    stock_status VARCHAR(50),
 
     FOREIGN KEY (store_id) REFERENCES Stores(store_id),
     FOREIGN KEY (product_id) REFERENCES Products(product_id)
