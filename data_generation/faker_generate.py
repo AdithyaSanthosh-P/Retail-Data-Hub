@@ -1,15 +1,12 @@
 from faker import Faker
 from datetime import datetime, timedelta
 import random
+import psycopg
+from products import PRODUCT_CATALOG
 
 fake = Faker("en_IN") 
 
-# Database connection
-DB_HOST = "localhost"
-DB_NAME = "retail_hub"
-DB_USER = "postgres"
-DB_PASSWORD = "postgres"
-DB_PORT = 5432
+# Database connection variables have been removed, might consider switching from peer auth to passwd auth
 
 # Data counts
 #NEed to update random() range to abide by decided data counts
@@ -113,8 +110,6 @@ def generate_stores():
         )
 
     return resultarr
-
-from products import PRODUCT_CATALOG
 
 def generate_product(product_id):
 
@@ -287,8 +282,6 @@ def generate_inventory(stores, products):
 
     return inventory
 
-
-
 def generate_shipments(orders):
 
     shipments = []
@@ -353,7 +346,9 @@ def generate_shipments(orders):
 #Should implement some logic to sequence actions like view and then add to cart instead of using weights in nexy phase
 #uuid logic
 
-def generate_web_logs(customers, products):
+
+
+def generate_web_logs(customers, products): 
 
     web_logs = []
     web_log_id = 1
@@ -393,3 +388,96 @@ def generate_web_logs(customers, products):
                 web_log_id += 1
 
     return web_logs
+
+def insertIntoDatabase():
+    # Note: the module name is psycopg, not psycopg3
+
+    # Connect to an existing database
+    with psycopg.connect("dbname=retail_hub user=adi") as conn:
+
+        # Open a cursor to perform database operations
+        with conn.cursor() as cur:
+
+            # Pass data to fill a query placeholders and let Psycopg perform
+            # the correct conversion (no SQL injections!)
+
+            # Query the database and obtain data as Python objects.
+
+            # You can use `cur.executemany()` to perform an operation in batch
+
+
+            def insert_table(cur, tableName, rows):
+                columns = list(rows[0].keys())
+
+                query = f""" INSERT INTO {tableName} ({', '.join(columns)}) VALUES ({', '.join(['%s'] * len(columns))}) """
+
+                values = [
+                    tuple(row[col] for col in columns)
+                    for row in rows
+                ]
+
+                cur.executemany(query, values)
+
+            customers = generate_customers()
+            products = generate_products()
+            stores = generate_stores()
+
+            insert_table(cur, "Customers", customers)
+            insert_table(cur, "Products", products)
+            insert_table(cur, "Stores", stores)
+
+            orders, order_items = generate_orders(
+                customers,
+                products,
+                stores
+            )
+
+            insert_table(cur, "Orders", orders)
+            insert_table(cur, "Order_Items", order_items)
+
+            inventory = generate_inventory(
+                stores,
+                products
+            )
+
+            insert_table(cur, "Inventory", inventory)
+
+            shipments = generate_shipments(orders)
+
+            insert_table(cur, "Shipments", shipments)
+
+            web_logs = generate_web_logs(
+                customers,
+                products
+            )
+
+            insert_table(cur, "Web_Logs", web_logs)
+
+
+            # Ccode for induvidual tables (repetitive)
+            '''
+                customer_rows = []
+                for c in customers:
+                    customer_rows.append(
+                        (
+                            c["customer_id"],
+                            c["customer_name"],
+                            c["email"],
+                            c["city"],
+                            c["registration_date"],
+                            c["customer_type"]
+                        )
+                    )
+
+                cur.executemany(
+                    "INSERT INTO Customers (customer_id, customer_name, email, city, registration_date, customer_type) values (%s, %s, %s, %s, %s, %s)",
+                    customer_rows
+                )
+            '''
+            
+
+
+            # Make the changes to the database persistent
+            conn.commit()
+
+insertIntoDatabase()
