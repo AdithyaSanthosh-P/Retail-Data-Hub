@@ -10,14 +10,21 @@ DROP TABLE IF EXISTS dim_customers CASCADE;
 DROP TABLE IF EXISTS dim_products CASCADE;
 DROP TABLE IF EXISTS dim_stores CASCADE;
 
+-- to be improved featuring irl events
 CREATE TABLE dim_date (
     date_id INT PRIMARY KEY,
     full_date DATE NOT NULL UNIQUE,
-    day INT,
-    month INT,
-    month_name VARCHAR(20),
-    quarter INT,
-    year INT
+    day INT NOT NULL,
+    month INT NOT NULL,
+    month_name VARCHAR(20) NOT NULL,
+    quarter INT NOT NULL,
+    year INT NOT NULL,
+    weekday_name VARCHAR(20) NOT NULL,
+    is_weekend BOOLEAN NOT NULL,
+    is_month_start BOOLEAN NOT NULL,
+    is_month_end BOOLEAN NOT NULL,
+    is_holiday BOOLEAN NOT NULL,
+    holiday_name VARCHAR(100)
 );
 
 CREATE TABLE dim_customers (
@@ -51,11 +58,12 @@ CREATE TABLE sales_fact (
     order_id INT NOT NULL,
     date_id INT NOT NULL,
     customer_id INT NOT NULL,
-    product_id INT NOT NULL,
     store_id INT,
 
+    product_id INT NOT NULL,
     quantity INT NOT NULL,
     unit_price DECIMAL(10,2),
+    
     revenue DECIMAL(10,2),
 
     FOREIGN KEY (date_id) REFERENCES dim_date(date_id),
